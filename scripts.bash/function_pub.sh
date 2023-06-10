@@ -275,7 +275,7 @@ function url_encode(){
   encode_str=''
   up_type=''
   if [[ -n "${2}" && "${1}" == '-A' ]];then
-    up_type=' -u'
+    up_type='-u'
     encode_str="${2}"
   elif [ -n "${2}" ];then
     encode_str="${2}"
@@ -284,7 +284,11 @@ function url_encode(){
   fi
 
   if [ -n "${encode_str}" ];then
-    echo -n "${encode_str}" | xxd"${up_type}" -plain | sed 's/\(..\)/%\1/g'
+    if [ -n "${up_type}" ];then
+      echo -n "${encode_str}" | xxd "${up_type}" -plain | sed 's/\(..\)/%\1/g'
+    else
+      echo -n "${encode_str}" | xxd -plain | sed 's/\(..\)/%\1/g'
+    fi
   else
     echo "The encode strings can't empty" && return 1
   fi
@@ -296,5 +300,26 @@ function url_decode(){
     printf $(echo -n "${1}" | sed 's/\\/\\\\/g;s/\(%\)\([0-9a-fA-F][0-9a-fA-F]\)/\\x\2/g')
   else
     echo "The decode strings can't empty" && return 1
+  fi
+}
+
+## Dingtalk robot
+function dingtk_robot(){
+  function dtk_url_encode() {
+    echo -n "${1}" | od -t d1 | awk '{for (i = 2; i <= NF; i++) {printf(($i>=48 && $i<=57) || ($i>=65 &&$i<=90) || ($i>=97 && $i<=122) ||$i==45 || $i==46 || $i==95 || $i==126 ?"%c" : "%%%02X", $i)}}'
+  }  
+  if [[ "${1}" == '-w' && $# -eq 3 ]];then
+    ## key words
+    curl -s -X POST H 'Content-Type: application/json' "https://oapi.dingtalk.com/robot/send?access_token=${2}" \
+    -d "${3}"
+  elif [[ "${1}" == '-s' && $# -eq 4 ]];then
+    ## sign
+    timestamp=$(date '+%s%3N')
+    sign=$(echo -ne "${timestamp}\n${3}" | openssl dgst -sha256 -hmac "${3}" --binary | base64)
+    sign_url_encode=$(dtk_url_encode "${sign}")
+    curl -s -X POST H 'Content-Type: application/json' "https://oapi.dingtalk.com/robot/send?access_token=${2}&timestmap=${timestamp}&sign=${sign_url_encode}" \
+    -d "${4}"
+  else
+    echo "参数个数或形式不合规" && return 1
   fi
 }
