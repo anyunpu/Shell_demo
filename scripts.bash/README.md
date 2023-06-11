@@ -32,22 +32,8 @@
 
 - function mkpassword
     - 用于随机创建密码
-    - 调用方式：`mkpassword "密码长度" "密码类型"`
-    - 参数说明
-        - 密码长度：大于0的整数
-        - 密码类型
-            - 0 ：大小写+数字+符号
-            - 1 ：仅大小写
-            - 2 ：小写 + 数字
-            - 3 ：小写 + 符号
-            - 4 ：大写 + 数字
-            - 5 ：大写 + 符号
-            - 6 ：大小写 + 数字
-            - 7 ：大写 + 数字 + 符号
-            - 8 ：仅小写
-            - 9 ：仅大写
-            - 10 ：仅数字
-            - 11 ：仅符号
+    - 调用方式：`mkpassword "密码长度"`
+    - 依赖说明：此 function 依赖 openssl
 
 - function url_encode
     - 用于对字符串进行 url 编码
@@ -58,3 +44,10 @@
 - function url_decode
     - 用于对于url编码过的字符串进行解码
     - 调用方式：`url_decode "URL编码过的字符串"`
+
+- function dingtk_robot
+    - 用于给钉钉机器人推送消息，webhup 方式
+    - 使用前需要在对应的群聊里添加自定义机器人
+    - 调用方式
+        - 关键词方式：`dingtk_robot -w "access_token" "msg json data"`
+        - 加签方式：`dingtk_robot -s "access_token" "secret" "msg json data"`
