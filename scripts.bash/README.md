@@ -51,3 +51,11 @@
     - 调用方式
         - 关键词方式：`dingtk_robot -w "access_token" "msg json data"`
         - 加签方式：`dingtk_robot -s "access_token" "secret" "msg json data"`
+
+- function date_diff
+    - 用于计算两个日期的差以及开始日期`N天以后`或`N天以前`
+    - 调用方式：
+        - 指定日期N天之前：`date_diff "开始日期" -N`
+        - 指定日期N天之后：`date_diff "开始日期" +N`
+        - 计算两个日期差： `date_diff "开始日期" "结束日期"`
+     - 参数说明：日期格式必须为 `yyyy-mm-dd` 格式

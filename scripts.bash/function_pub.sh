@@ -120,3 +120,26 @@ function dingtk_robot(){
     echo "参数个数或形式不合规" && return 1
   fi
 }
+
+## date diff
+function date_diff(){
+  if [[ -n "${1}" && -n "${2}" ]];then
+    if date -d "${1}" +%s > /dev/null 2>&1 && date -d "${2}" +%s > /dev/null 2>&1;then
+      a=$(date -d "${1}" '+%s')
+      b=$(date -d "${2}" '+%s')
+      echo $(( (${b} - ${a}) / 86400))
+  elif date -d "${1}" +%s >/dev/null 2>&1 && expr $(echo "${2}" | tr -d '-' | tr -d '+') '+' 1 > /dev/null 2>&1;then 
+      if echo "${2}" | grep -qE '^-';then
+	 befor_day=$(echo "${2}" | tr -d '-')
+         echo $(date -d "${1} ${befor_day} days ago" '+%F')
+      else
+	 after_day=$(echo "${2}" | tr -d '+')
+         echo $(date -d "${1} ${after_day} days" '+%F')
+      fi
+    else
+      echo "参数个数或形式不合规" && return 1
+    fi
+  else
+    echo "参数个数或形式不合规" && return 1
+  fi
+}
