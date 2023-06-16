@@ -5,3 +5,9 @@
 - 故而 anYun 创建了这个 shell_demo，目的就是集经常会用到的function，从而简化Shell代码需求
 - anYun 是一枚90后的IT男，目前居住 中国.云南.昆明
 - 任何人都可以fork我的代码，同时有好的代码也欢迎合并请求
+
+# anYun 博客站点
+- 技术博客：https://deyun.fun
+- 知识库：https://iquan.fun
+- IP接口：https://ip.iquan.fun
+- E-mail：deyun@deyun.fun
