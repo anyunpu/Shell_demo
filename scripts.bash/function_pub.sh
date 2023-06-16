@@ -114,21 +114,21 @@ function dingtk_robot(){
     timestamp=$(date '+%s%3N')
     sign=$(echo -ne "${timestamp}\n${3}" | openssl dgst -sha256 -hmac "${3}" --binary | base64)
     sign_url_encode=$(dtk_url_encode "${sign}")
-    curl -s -X POST H 'Content-Type: application/json' "https://oapi.dingtalk.com/robot/send?access_token=${2}&timestmap=${timestamp}&sign=${sign_url_encode}" \
+    curl -s -X POST -H 'Content-Type: application/json' "https://oapi.dingtalk.com/robot/send?access_token=${2}&timestamp=${timestamp}&sign=${sign_url_encode}" \
     -d "${4}"
   else
-    echo "参数个数或形式不合规" && return 1
+    echo -e "参数个数或形式不合规\n关键词方式：dingtk_robot -w 'access_token' 'messge_str'\n加签方式：dingtk_robot -s 'access_token' 'secret' 'messge_str'" && return 1
   fi
 }
 
 ## date diff
 function date_diff(){
   if [[ -n "${1}" && -n "${2}" ]];then
-    if date -d "${1}" +%s > /dev/null 2>&1 && date -d "${2}" +%s > /dev/null 2>&1;then
+    if [[ "${1}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ && "${2}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] && date -d "${1}" +%s > /dev/null 2>&1 && date -d "${2}" +%s > /dev/null 2>&1;then
       a=$(date -d "${1}" '+%s')
       b=$(date -d "${2}" '+%s')
       echo $(( (${b} - ${a}) / 86400))
-  elif date -d "${1}" +%s >/dev/null 2>&1 && expr $(echo "${2}" | tr -d '-' | tr -d '+') '+' 1 > /dev/null 2>&1;then 
+    elif date -d "${1}" +%s >/dev/null 2>&1 && echo "${2}" | grep -qE '^\-|^\+' && expr $(echo "${2}" | tr -d '-' | tr -d '+') '+' 1 > /dev/null 2>&1;then 
       if echo "${2}" | grep -qE '^-';then
 	 befor_day=$(echo "${2}" | tr -d '-')
          echo $(date -d "${1} ${befor_day} days ago" '+%F')
