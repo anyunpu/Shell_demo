@@ -12,7 +12,7 @@
 function sql(){
   if [[ ! -n "${db_host}" || ! -n "${db_host}" && ! -n "${db_user}" || ! -n "${db_port}" || ! -n "${db_pass}" ]];then
     if which mysql > /dev/null 2>&1 ;then
-      MYSQL_PWD="${db_pass}" && mysql -h${db_host} -P${db_port} -u${db_user} -e "set names utf8;${1};"
+      MYSQL_PWD="${db_pass}" && mysql -h${db_host} -P${db_port} -u${db_user} -p${MYSQL_PWD} -e "set names utf8;${1};"
     else
       echo "Command 'mysql' not found" && return 1
     fi
