@@ -1,7 +1,6 @@
 ### 云导航   yunNav
 
-![](https://img.shields.io/badge/version-4.1.2-red)
-
+Ver: 4.0
 ------------
 #### 这是什么
 
@@ -26,11 +25,13 @@
 
 **桌面端**
 
-![桌面端预览](https://s1.ax1x.com/2020/03/13/8MV3uT.png)
+体验网址：[云的导航](https://jian.deyun.fun){target="_blank"}
+
+![桌面端预览](img/d74872f40858945b6e831f3d360e2950.webp)
 
 **移动端**
 
-![移动端预览](https://s1.ax1x.com/2020/03/14/8MV6Ve.jpg)
+![移动端预览](img/15ec22b5647ceee8961f5f7cc7863c1e.webp)
 
 
 #### 开源相关
@@ -51,5 +52,5 @@ font-awesome：[https://fontawesome.com](https://fontawesome.com "https://fontaw
 
 ------------
 #### 开发日志
-2023-08-25  初遇 [一个导航 aNavigation](https://nav.kksan.top/)
-2023-08-29  云的导航 4.0 上线测试
+- 2023-08-25  初遇 [一个导航 aNavigation](https://nav.kksan.top/)
+- 2023-08-29  云的导航 4.0 上线测试
