@@ -2,7 +2,7 @@
 
 ## 用于基于docker 部署 jellyfin 家庭媒体服务
 ## 媒体管理使用 vsftp 管理
-## By anYun V1.2 2023.11.09 Kunming
+## By anYun V1.3 2023.11.13 Kunming
 
 ## 博客：https://deyun.fun
 ## 知识库：https://iquan.fun
@@ -14,12 +14,9 @@ jfin_port='' #  jellyfin 访问端口
 ftp_user='jellyfin'
 ftp_pass='Jfin@123'
 
-if [[  -n "${jfin_port}" && ! `ss -ntpl | grep -qw "${jfin_port}"` ]] ;then
-  echo "自定义端口 ${jfin_port} 已被使用，请更换端口" && exit 1
-else
-  jfin_port='8096'
+if [[ ! -d "${w_dir}" || ! -n "${w_dir}" ]];then
+  echo "${w_dir} not exist or is empty" && exit 1
 fi
-
 if ! $(whereis docker > /dev/null 2>&1) ;then
   echo "docker command not found,please install it" && exit 1
 fi
@@ -27,16 +24,21 @@ fi
 if ! $(whereis docker-compose > /dev/null 2>&1) ;then
   echo "docker-compose command not found,please install it" && exit 1
 fi
-
-if [[ ! -d "${w_dir}" || ! -n "${w_dir}" ]];then
-  echo "${w_dir} not exist or is empty" && exit 1
+if [[  -n "${jfin_port}" || `ss -ntpl | grep -qw "${jfin_port}"` ]] ;then
+  echo "自定义端口 ${jfin_port} 已被使用，请更换端口" && exit 1
+else
+  jfin_port='8096'
 fi
-cd "${w_dir}" && mkdir -p jellyfin jellyfin/config jellyfin/cache jellyfin/font jellyfin/ftp/jellyfin
-work_dir=$(pwd)
-ln -s ${work_dir}/jellyfin/ftp/jellyfin ${work_dir}/jellyfin/media
-cd jellyfin
-## jellyfin docker-compose
 
+if [ "${ftp_user}" == "admin" ];then
+  echo "ftp user cant not use 'admin'" && exit 1
+fi
+cd "${w_dir}" && mkdir -p jellyfin/config jellyfin/cache jellyfin/font jellyfin/ftp/$(ftp_user)
+work_dir=$(pwd)
+ln -s ${work_dir}/jellyfin/ftp/${ftp_user} ${work_dir}/jellyfin/media
+cd jellyfin
+
+## docker-compose file
 cat >> docker-compose.yml << EOF
 version: '3'
 services:
@@ -74,8 +76,12 @@ services:
     restart: unless-stopped
 EOF
 
-docker-compose up -d && clear
-echo "======= FTP info ======="
-echo -e "ftp_user: ${ftp_user}\tftp_pass: ${ftp_pass}\n"
-echo "======= Jellyfin info ======="
-echo -e "Web Port：${jfin_port}\nDirectory：\n$(tree -d -L 1 ${work_dir}/jellyfin)"
+clear && echo "正在准备安装，请稍后..." sleep 3
+if $(docker-compose up -d) ;then
+  echo "======= FTP info ======="
+  echo -e "ftp_user: ${ftp_user}\tftp_pass: ${ftp_pass}\n"
+  echo "======= Jellyfin info ======="
+  echo -e "Web Port：${jfin_port}\nDirectory：\n$(tree -d -L 1 ${work_dir}/jellyfin)"
+else
+  echo "安装失败，请检查 docker-compose 文件"
+fi
