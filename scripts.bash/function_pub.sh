@@ -20,6 +20,8 @@ function sql(){
     echo "db_host db_port db_user db_pass can't empty" && return 1
   fi
 }
+
+## print logs
 function print_log(){
   echo "$(date '+%F %H:%M:%S') $1"
 }
@@ -29,19 +31,19 @@ function ip_checking(){
   if [[ "${1}" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]];then
     ipv4_arr=(${1//\./ })
     if [[ "${ipv4_arr[0]}" -le 255 && "${ipv4_arr[1]}" -le 255 && "${ipv4_arr[2]}" -le 255 && "${ipv4_arr[3]}" -le 255 ]];then
-      iptype=4 && return 0
+      iptype=4 && echo "$1 is a valid IPv4" && return 0
     else
-      return 1
+      echo "$1 Not a valid IPv4" && return 1
     fi
   elif [[ "${1}" =~  ^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$ ]];then
-    iptype=6 && return 0
+    iptype=6 && echo "$1 Not a valid IPv6" && return 0
   else
     echo "${1} 不是一个有效的IP" && return 1
   fi
 }
 
 ## ipv4 to int or int to ipv4
-function convert_ip(){
+function conv_ip(){
   if expr "$1" '+' 1 >/dev/null 2>&1;then
     ## int to ipv4
     num="$1"
@@ -53,13 +55,13 @@ function convert_ip(){
       ip_int=$((${ip_arr[3]} + (${ip_arr[2]} << 8) + (${ip_arr[1]} << 16) + (${ip_arr[0]} << 24)))
     fi
   else
-    print_log "${1} 不是合法IPv4" && return 1
+    echo  "${1} Not a valid IPv4" && return 1
   fi
   echo "${ip_int}"
 }
 
 ## Make password
-function mkpassword(){
+function new_pass(){
   if [[ -n "${1}" && "${1}" -gt 0 ]] && expr "${1}" '+' 1 >/dev/null 2>&1 ;then
     openssl rand -base64 "${1}"
   else
@@ -142,4 +144,51 @@ function date_diff(){
   else
     echo "参数个数或形式不合规" && return 1
   fi
+}
+
+## Dir empty check
+function em_dir(){
+  if [ -d "$1" ];then
+    if [ -n "$(ls -A $1)" ];then
+      ## Not Empty
+      echo "\"$1\" is not Empty" && return 1
+    else
+      ## Empty
+      echo "\"$1\" is Empty" && return 0
+    fi
+  else
+    echo "$1 not a Directory" && return 1
+  fi
+}
+
+## str to unicode
+function str2unicode(){
+  ## agv_1 need to unicode str
+  ## avg_2 reslut type, 0 => a-z , 1 => A-Z
+  ## default t_type=0
+  t_str="${1}"
+  if [ -n "${2}" ];then
+    t_type=${2}
+  else
+    t_type=0
+  fi
+  t_str_unc=''
+  if [ -n "${t_str}" ];then
+    for (( i = 0 ; i < ${#t_str} ; i++ ))
+    do
+      a="${t_str:$i:1}"
+      if [ "${a}" == '\' ];then
+        i=$(( $i + 1 ))
+        b="${a}${t_str:$i:1}"
+        t_str_unc+=$(printf '\\u%04x' "$(printf \"${b}\")")
+      else
+        t_str_unc+=$(printf '\\u%04x' "'${a}'")
+      fi
+    done
+  fi
+
+  if [ ${t_type} -eq 1 ];then
+    t_str_unc="$(echo ${t_str_unc} | tr 'a-z' 'A-Z')"
+  fi
+  echo -n "${t_str_unc}"
 }
